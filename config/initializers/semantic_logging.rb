@@ -1,40 +1,5 @@
 require 'semantic_logger'
 
-SemanticLogger.add_appender($stdout, Rails.configuration.log_level) do |log|
-  colors      = SemanticLogger::Appender::AnsiColors
-  level_color = colors::LEVEL_MAP[log.level]
-
-  # Header with date, time, log level and process info
-  entry = "#{log.formatted_time} #{level_color}#{log.level_to_s}#{colors::CLEAR}" # [#{log.process_info}]"
-
-  # Tags
-  entry << ' ' << log.tags.collect { |tag| "[#{level_color}#{tag}#{colors::CLEAR}]" }.join(' ') if log.tags && (log.tags.size > 0)
-
-  # Duration
-  entry << " (#{colors::BOLD}#{log.duration_human}#{colors::CLEAR})" if log.duration
-
-  # Class / app name
-  entry << " #{level_color}#{log.name}#{colors::CLEAR}"
-
-  # Log message
-  entry << " -- #{log.message}" if log.message
-
-  # Payload
-  unless log.payload.nil? || (log.payload.respond_to?(:empty?) && log.payload.empty?)
-    # payload = log.payload
-    # payload = (defined?(AwesomePrint) && payload.respond_to?(:ai)) ? payload.ai(multiline: false) : payload.inspect
-    entry << ' -- ' << log.payload.map{|k,v| "#{colors::BOLD}#{level_color}#{k}#{colors::CLEAR}=#{JSON.dump(v)}"}.join(' ')
-  end
-
-  # Exceptions
-  log.each_exception do |exception, i|
-    entry << (i == 0 ? ' -- Exception: ' : "\nCause: ")
-    entry << "#{colors::BOLD}#{exception.class}: #{exception.message}#{colors::CLEAR}\n#{(exception.backtrace || []).join("\n")}"
-  end
-
-  entry
-end
-
 module ActiveRecord
   class LogSubscriber < ActiveSupport::LogSubscriber
     def sql(event)
@@ -72,3 +37,14 @@ module Lograge
     end
   end
 end
+
+# this code is adapted from the rails_semantic_logger gem:
+# https://github.com/rocketjob/rails_semantic_logger/blob/master/lib/rails_semantic_logger/railtie.rb#L37
+log_path = ((Rails.configuration.paths.log.to_a rescue nil) || Rails.configuration.paths['log']).first
+unless File.exist? File.dirname(log_path)
+  FileUtils.mkdir_p File.dirname(log_path)
+end
+
+appender                      = SemanticLogger::Appender::File.new(log_path, Rails.configuration.log_level)
+appender.name                 = 'SemanticLogger'
+SemanticLogger.add_appender(appender)
