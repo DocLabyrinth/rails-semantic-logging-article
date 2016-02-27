@@ -1,0 +1,11 @@
+graylog2:
+  image: graylog2/allinone
+  ports:
+    - 9000:9000
+    - 12201:12201/udp
+  environment:
+    GRAYLOG_NODE_ID: some-rand-omeu-uidasnodeid
+    GRAYLOG_SERVER_SECRET: somesecretsaltstring
+  volumes:
+    - ./graylog/data:/var/opt/graylog/data
+    - ./graylog/logs:/var/log/graylog

@@ -25,5 +25,7 @@ module SemanticLoggingArticle
 
     # use semantic logging
     config.lograge.enabled = true
+
+    config.log_tags = [ :uuid ]
   end
 end

@@ -25,6 +25,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem "lograge", "~> 0.3.5"
 gem "semantic_logger", "~> 2.21.0"
+gem "gelf", "~> 1.4.0"
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'

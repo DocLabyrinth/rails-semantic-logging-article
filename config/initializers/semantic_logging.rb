@@ -48,3 +48,5 @@ end
 appender                      = SemanticLogger::Appender::File.new(log_path, Rails.configuration.log_level)
 appender.name                 = 'SemanticLogger'
 SemanticLogger.add_appender(appender)
+
+Rails.logger = SemanticLogger[Rails]
